@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Back End Assessment</title>
+  </head>
+  <body class="container">
+    <button id="complimentButton">Get a Compliment</button>
+    <button id="fortuneButton">Give Me My fortune</button>
+    <br>
+  <p>Let's make some goals for today!</p>
+  <input type="text" id = "goalTxt" placeholder="Enter a goal">
+  <input type="submit" id="goalBtn" value="Add Goal to List!">
+  <input type="submit" id="changeGoalBtn" value="Change Your Last Goal">
+<p id="goalList"></p>
+<button id = "deleteGoal">Delete Last Goal</button>
+<h3>In the mood for a movie? Click below to see my suggestions</h3>
+<button id = "movieBtn">Cick here for movies</button>
+<div id = "movieList"></div>
+<h3>Maybe You just need some cute puppy photos to lift your spirits!  Pick a breed to see a cute photo</h3>
+<label for="dogSelect">Choose a breed</label>
+<select name="dog" id="dogSelect">
+  <option value="">--Pick a Breed--</option>
+  <option id="dauchshund" value="dauchshund">Dauchshund</option>
+  <option id="shihTzu"value="shihTzu">Shih Tzu</option>
+  <option id="labrador"value="labrador">Labrador</option>
+</select>
+<div id="dogDiv"></div>
+
+
+  <!-- goals script -->
+  <script>
+const goalSubmit = document.getElementById("goalBtn")
+const goalList = document.getElementById("goalList")
+const goalTxt = document.getElementById("goalTxt")
+const deleteGoalBtn = document.getElementById("deleteGoal")
+const changeGoalBtn = document.getElementById("changeGoalBtn")
+
+
+goalSubmit.onclick = function () {
+   const goalObj = {
+     goal: goalTxt.value
+   }
+   console.log(goalObj)
+  axios.post("http://localhost:4000/api/goals", goalObj)
+    .then(res => {
+      goalList.textContent = res.data.toString()
+      goalTxt.value = ''
+    })
+    .catch(err => console.log(err))
+}
+
+deleteGoalBtn.onclick = function () {
+  axios.delete("http://localhost:4000/api/goals")
+    .then(res => {
+      goalList.textContent = res.data.toString()
+    })
+    .catch(err => console.log(err))
+}
+
+changeGoalBtn.onclick = function () {
+  const goalObj = {
+     goal: goalTxt.value
+   }
+  axios.put("http://localhost:4000/api/goals", goalObj)
+  .then(res => {
+    goalList.textContent = res.data.toString()
+    goalTxt.value = ''
+
+  })
+}
+
+
+  </script>
+
+  <!-- Movies script -->
+  <script>
+const movieBtn = document.getElementById("movieBtn")
+const movieList = document.getElementById("movieList")
+
+movieBtn.onclick = function () {
+  axios.get("http://localhost:4000/api/movies")
+    .then(res => {
+      for (let i = 0; i <= res.data.length-1; i++){
+      let list = document.createElement('li')
+      list.textContent = `${res.data[i].title} - Rating: ${res.data[i].rating}`
+      movieList.appendChild(list)
+      }
+    })
+    .catch(err => console.log(err))
+}
+
+  </script>
+
+<!-- dog script -->
+
+  <script>
+const dogSelect = document.getElementById("dogSelect")
+const dogDiv = document.getElementById("dogDiv")
+dogSelect.addEventListener('change', () => {
+  console.log(event.target.value)
+  axios.get("http://localhost:4000/api/dogs/")
+    .then(res => {
+      const dogImg = document.createElement("img")
+      console.log(res.data)
+      for(let i = 0; i <= res.data.length-1; i++){
+        // console.log(res.data[i].breed)
+        if(event.target.value === res.data[i].breed){
+          dogImg.setAttribute("src", res.data[0].url)
+          dogDiv.appendChild(dogImg)
+        }
+      }
+    })
+    .catch(err => console.log(err))
+})
+
+  </script>
+
+<!-- Compliment button script -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      document.getElementById("complimentButton").onclick = function () {
+        axios.get("http://localhost:4000/api/compliment/")
+            .then(function (response) {
+              const data = response.data;
+              alert(data);
+            });
+      };
+    </script>
+
+<!-- Fortune button script -->
+
+    <script>
+      document.getElementById("fortuneButton").onclick = function () {
+        axios.get("http://localhost:4000/api/fortune/")
+            .then(function (response) {
+              const data = response.data;
+              alert(data);
+            });
+      }; 
+   </script>
+  </body>
+</html>
